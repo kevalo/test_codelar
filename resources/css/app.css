@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-#preview {
+#preview,
+#teamList .pokemon img {
     width: 250px;
 }

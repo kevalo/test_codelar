@@ -1,7 +1,11 @@
-import axios from 'axios';
 import './bootstrap';
 
 (() => {
+
+    //#region search pokemon
+
+    const nameInput = document.querySelector("#name");
+    const preview = document.getElementById("preview");
 
     const inputError = (input) => {
         input.classList.add("border-rose-500");
@@ -13,14 +17,12 @@ import './bootstrap';
         input.classList.remove("placeholder:text-rose-500");
     }
 
-    const searchPokemonForm = document.querySelector("#formSearchPokemon");
+    const searchPokemonForm = document.querySelector("#searchPokemonForm");
     if (searchPokemonForm) {
-        const nameInput = document.querySelector("#name");
+
         nameInput.addEventListener("keyup", () => {
             clearInputError(nameInput);
         });
-
-        const preview = document.getElementById("preview");
 
         searchPokemonForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -46,4 +48,25 @@ import './bootstrap';
             preview.innerHTML = response.data.html;
         })
     }
+
+    //#endregion search pokemon
+
+    //#region add pokemon
+
+    $(document).on("click", "#addPokemonForm", async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+
+        let response = null;
+        try {
+            let data = new FormData(form);
+            response = await axios.post(form.action, data);
+        } catch (error) {
+            console.log(error);
+            response = error.response;
+        }
+
+        preview.innerHTML = response.data.htmlPreview;
+        document.querySelector("#teamList").innerHTML = response.data.html;
+    })
 })();

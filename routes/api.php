@@ -15,10 +15,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware("auth:sanctum")->get("/user", function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('pokemon')->group(function () {
-    Route::get('/search/{name}', [MainController::class, "searchPokemon"])->name("search_pokemon");
+Route::prefix("pokemon")->group(function () {
+    Route::get("/search/{name}", [MainController::class, "searchPokemon"])->name("search_pokemon");
+    Route::post("/add", [MainController::class, "addPokemon"])->name("add_pokemon");
 });

@@ -20,15 +20,21 @@
 </head>
 
 <body>
-    <h1 class="text-4xl my-10 text-center">Equipo Pokemón</h1>
+    <h1 class="text-4xl my-8 text-center">Equipo Pokemón</h1>
     <div class="flex justify-center p-3">
         <x-search-form />
         <div id="preview" class="p-3 border-2 border-sky-500 rounded-lg ml-5 flex flex-col shadow-md shadow-blue-300">
             <x-pokemon-preview />
         </div>
     </div>
-    <x-team-list />
+
+    <div id="teamList">
+        <x-team-list :team="$team" />
+    </div>
 
 </body>
+
+<script src="https://code.jquery.com/jquery-3.6.3.slim.min.js"
+    integrity="sha256-ZwqZIVdD3iXNyGHbSYdsmWP//UBokj2FHAxKuSBKDSo=" crossorigin="anonymous"></script>
 
 </html>
