@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ApiController;
+use App\Http\Controllers\MainController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,5 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('pokemon')->group(function () {
-    Route::get('/search/{name}', [ApiController::class, "searchPokemon"])->name("search_pokemon");
+    Route::get('/search/{name}', [MainController::class, "searchPokemon"])->name("search_pokemon");
 });
