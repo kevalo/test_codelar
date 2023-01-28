@@ -52,13 +52,13 @@ import './bootstrap';
     //#endregion search pokemon
 
     //#region add pokemon
-
     $(document).on("click", "#addPokemonForm", async (e) => {
         e.preventDefault();
         const form = e.currentTarget;
 
         let response = null;
         try {
+            preview.innerHTML = '<span class="text-center m-auto">Guardando pokemón...</span>';
             let data = new FormData(form);
             response = await axios.post(form.action, data);
         } catch (error) {
@@ -69,4 +69,14 @@ import './bootstrap';
         preview.innerHTML = response.data.htmlPreview;
         document.querySelector("#teamList").innerHTML = response.data.html;
     })
+    //#endregion add pokemon
+
+    //#region view moves
+    $(document).on("click", ".view-movements", (e) => {
+        const element = e.currentTarget;
+        const movesDiv = `moves-${element.dataset.id}`;
+        $(`#${movesDiv}`).toggleClass("hidden");
+    });
+    //#endregion view moves
+
 })();

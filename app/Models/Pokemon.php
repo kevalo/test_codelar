@@ -24,6 +24,6 @@ class Pokemon extends Model
      */
     public function moves()
     {
-        return $this->belongsToMany(Stat::class, 'pokemon_move', 'pokemon_id', 'move_id');
+        return $this->belongsToMany(Move::class, 'pokemon_move', 'pokemon_id', 'move_id');
     }
 }

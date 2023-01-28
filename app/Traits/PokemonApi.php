@@ -30,4 +30,29 @@ trait PokemonApi
         }
         return $data;
     }
+
+    /**
+     * Get the move data
+     * @param mixed $url
+     * @return \Illuminate\Http\Client\Response|null
+     */
+    public function getMove($url)
+    {
+        $data = null;
+        if (
+            !$url || !str_contains(
+                $url,
+                config("constants.POKEAPI_BASE_URL") . config("constants.POKEAPI_MOVE_ENDPOINT")
+            )
+        ) {
+            return $data;
+        }
+
+        try {
+            $data = Http::get($url);
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+        }
+        return $data;
+    }
 }

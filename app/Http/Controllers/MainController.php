@@ -57,7 +57,7 @@ class MainController extends Controller
         $max = config("constants.MAX_POKEMONS");
         if ($this->countPokemonsData() >= $max) {
             $response["htmlPreview"] =
-                "<span class='text-center m-auto'>Solo puedes tener $max pokemones en tu equipo</span>";
+                "<span class='text-center m-auto'>Solo puedes tener $max pokemón en tu equipo</span>";
 
         } else {
 
@@ -73,7 +73,8 @@ class MainController extends Controller
 
                 $response["status"] = $apiResponse->status();
 
-                if ($response["status"] === 200 && $this->savePokemonData($apiResponse->json())) {
+                $moves = $this->getLevelUpMoves($apiResponse->json()["moves"]);
+                if ($response["status"] === 200 && $this->savePokemonData($apiResponse->json(), $moves)) {
                     $response["htmlPreview"] = view("components.pokemon-preview")->render();
                 }
             }
@@ -81,5 +82,48 @@ class MainController extends Controller
 
         $response["html"] = view("components.team-list", ["team" => $this->getAllPokemonsData()])->render();
         return response()->json($response, $response["status"]);
+    }
+
+    /**
+     * Returns the moves from "scarlet-violet" that can get learned by "level-up"
+     * @param array $moves
+     * @return array
+     */
+    private function getLevelUpMoves(array $moves)
+    {
+        $validMoves = array_filter($moves, static function ($item) {
+            $validMove = false;
+
+            $lastVersionIndex = count($item["version_group_details"]) - 1;
+            if (
+                $item["version_group_details"][$lastVersionIndex]["move_learn_method"]["name"] === "level-up"
+                && (
+                    $item["version_group_details"][$lastVersionIndex]["version_group"]["name"] === "scarlet-violet"
+                    || $item["version_group_details"][$lastVersionIndex]["version_group"]["name"] === "sword-shield"
+                )
+            ) {
+                $validMove = true;
+            }
+
+            return $validMove;
+        });
+
+        $levelUpMoves = [];
+
+        foreach ($validMoves as $move) {
+
+            $allMoveData = $this->getMove($move["move"]["url"]);
+            if ($allMoveData) {
+                $levelUpMoves[] = [
+                    "name" => $allMoveData["name"],
+                    "damage_class" => $allMoveData["damage_class"]["name"],
+                    "type" => $allMoveData["type"]["name"],
+                    "accuracy" => $allMoveData["accuracy"] ?: 0,
+                    "power" => $allMoveData["power"] ?: 0,
+                ];
+            }
+        }
+
+        return $levelUpMoves;
     }
 }
