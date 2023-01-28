@@ -27,6 +27,28 @@ trait DbOperations
         return $amount;
     }
 
+    /**
+     * Returns a pokemon searching by the Id
+     * @param int $id
+     * @return mixed
+     */
+    public function getPokemonById(int $id)
+    {
+        $data = null;
+
+        if (!is_numeric($id)) {
+            return $data;
+        }
+
+        try {
+            $data = Pokemon::find($id);
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+        }
+
+        return $data;
+    }
+
 
     /**
      * Returns the pokemons in the database
@@ -50,15 +72,16 @@ trait DbOperations
      * Saves a pokemon in the database
      * @param array $data
      * @param array $moves
+     * @param string $evolutionChainUrl
      * @return bool
      */
-    public function savePokemonData(array $data, array $moves)
+    public function savePokemonData(array $data, array $moves, string $evolutionChainUrl)
     {
         $result = false;
 
         try {
 
-            DB::transaction(function () use (&$result, $data, $moves) {
+            DB::transaction(function () use (&$result, $data, $moves, $evolutionChainUrl) {
                 $pokemon = new Pokemon();
                 $pokemon->name = $data["name"];
                 $pokemon->api_id = $data["id"];
@@ -66,6 +89,7 @@ trait DbOperations
                 $pokemon->height = $data["height"];
                 $pokemon->weight = $data["weight"];
                 $pokemon->sprite = $data["sprites"]["other"]["official-artwork"]["front_default"];
+                $pokemon->evolution_chain = $evolutionChainUrl;
                 $pokemon->save();
 
                 $stats = $this->saveStatsData($data["stats"]);
@@ -75,6 +99,48 @@ trait DbOperations
                 $pokemon->moves()->sync($validMoves);
 
                 $result = true;
+            });
+
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * Updates a pokemon in the database
+     * @param int $id
+     * @param array $data
+     * @param array $moves
+     * @param string $evolutionChainUrl
+     * @return bool
+     */
+    public function updatePokemonData(int $id, array $data, array $moves, string $evolutionChainUrl)
+    {
+        $result = false;
+
+        try {
+            DB::transaction(function () use (&$result, $id, $data, $moves, $evolutionChainUrl) {
+                $pokemon = Pokemon::find($id);
+                if ($pokemon) {
+                    $pokemon->name = $data["name"];
+                    $pokemon->api_id = $data["id"];
+                    $pokemon->base_experience = $data["base_experience"];
+                    $pokemon->height = $data["height"];
+                    $pokemon->weight = $data["weight"];
+                    $pokemon->sprite = $data["sprites"]["other"]["official-artwork"]["front_default"];
+                    $pokemon->evolution_chain = $evolutionChainUrl;
+                    $pokemon->save();
+
+                    $stats = $this->saveStatsData($data["stats"]);
+                    $pokemon->stats()->sync($stats);
+
+                    $validMoves = $this->saveMovesData($moves);
+                    $pokemon->moves()->sync($validMoves);
+
+                    $result = true;
+                }
             });
 
         } catch (\Exception $e) {

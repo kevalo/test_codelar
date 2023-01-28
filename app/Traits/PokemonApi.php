@@ -55,4 +55,57 @@ trait PokemonApi
         }
         return $data;
     }
+
+    /**
+     * Returns the evolution chain url
+     * @param mixed $speciesUrl
+     * @return mixed
+     */
+    public function getEvolutionChainUrl($speciesUrl)
+    {
+        $data = "";
+        if (
+            !$speciesUrl || !str_contains(
+                $speciesUrl,
+                config("constants.POKEAPI_BASE_URL") . config("constants.POKEAPI_SPECIES_ENDPOINT")
+            )
+        ) {
+            return $data;
+        }
+
+        try {
+            $speciesResponse = Http::get($speciesUrl);
+            if ($speciesResponse) {
+                $data = $speciesResponse->json()["evolution_chain"]["url"];
+            }
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+        }
+        return $data;
+    }
+
+    /**
+     * Get the move data
+     * @param mixed $url
+     * @return \Illuminate\Http\Client\Response|null
+     */
+    public function getEvolutionChain($url)
+    {
+        $data = null;
+        if (
+            !$url || !str_contains(
+                $url,
+                config("constants.POKEAPI_BASE_URL") . config("constants.POKEAPI_EVOLUTION_CHAIN_ENDPOINT")
+            )
+        ) {
+            return $data;
+        }
+
+        try {
+            $data = Http::get($url);
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+        }
+        return $data;
+    }
 }

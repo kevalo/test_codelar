@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->integer("height");
             $table->integer("weight");
             $table->string("sprite");
+            $table->string("evolution_chain");
             $table->timestamps();
         });
     }

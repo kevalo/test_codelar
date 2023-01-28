@@ -3,7 +3,6 @@ import './bootstrap';
 (() => {
 
     //#region search pokemon
-
     const nameInput = document.querySelector("#name");
     const preview = document.getElementById("preview");
 
@@ -48,7 +47,6 @@ import './bootstrap';
             preview.innerHTML = response.data.html;
         })
     }
-
     //#endregion search pokemon
 
     //#region add pokemon
@@ -78,5 +76,30 @@ import './bootstrap';
         $(`#${movesDiv}`).toggleClass("hidden");
     });
     //#endregion view moves
+
+    //#region evolve pokemon
+    $(document).on("submit", ".evolve-pokemon", async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+        const evolveStatus = $(`#evolveStatus${form.dataset.id}`);
+
+        let response = null;
+        try {
+            let data = new FormData(form);
+            evolveStatus.text('Evolucionando pokemón...');
+            evolveStatus.removeClass("hidden");
+            response = await axios.post(form.action, data);
+        } catch (error) {
+            console.log(error);
+            response = error.response;
+        }
+
+        if (response.data.found) {
+            document.querySelector("#teamList").innerHTML = response.data.html;
+        } else {
+            evolveStatus.html('No hay más evoluciones.');
+        }
+    })
+    //#endregion evolve pokemon
 
 })();

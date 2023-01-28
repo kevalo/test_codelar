@@ -6,11 +6,9 @@ use App\Traits\PokemonApi;
 use App\Traits\DbOperations;
 use Illuminate\Http\Request;
 
-
 class MainController extends Controller
 {
     use PokemonApi, DbOperations;
-
 
     public function index()
     {
@@ -46,6 +44,10 @@ class MainController extends Controller
         return response()->json($response, $response["status"]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function addPokemon(Request $request)
     {
         $response = [
@@ -74,7 +76,11 @@ class MainController extends Controller
                 $response["status"] = $apiResponse->status();
 
                 $moves = $this->getLevelUpMoves($apiResponse->json()["moves"]);
-                if ($response["status"] === 200 && $this->savePokemonData($apiResponse->json(), $moves)) {
+                $evolutionChainUrl = $this->getEvolutionChainUrl($apiResponse["species"]["url"]);
+                if (
+                    $response["status"] === 200
+                    && $this->savePokemonData($apiResponse->json(), $moves, $evolutionChainUrl)
+                ) {
                     $response["htmlPreview"] = view("components.pokemon-preview")->render();
                 }
             }
@@ -82,6 +88,35 @@ class MainController extends Controller
 
         $response["html"] = view("components.team-list", ["team" => $this->getAllPokemonsData()])->render();
         return response()->json($response, $response["status"]);
+    }
+
+    public function evolvePokemon(Request $request)
+    {
+        $response = [
+            "html" => "",
+            "found" => false
+        ];
+
+        $id = $request->post("id");
+        $pokemon = $this->getPokemonById($id);
+        if ($pokemon) {
+            $evolutionChainData = $this->getEvolutionChain($pokemon->evolution_chain);
+            if ($evolutionChainData) {
+
+                $evolution = null;
+                $chain = $evolutionChainData->json()["chain"];
+                if (count($chain["evolves_to"]) > 0) {
+                    $evolution = $this->findEvolution($chain, $pokemon->name);
+                    if ($evolution) {
+                        $response["found"] = true;
+                        $this->updatePokemon($id, $evolution);
+                    }
+                }
+            }
+        }
+
+        $response["html"] = view("components.team-list", ["team" => $this->getAllPokemonsData()])->render();
+        return response()->json($response);
     }
 
     /**
@@ -125,5 +160,48 @@ class MainController extends Controller
         }
 
         return $levelUpMoves;
+    }
+
+    /**
+     * Returns the pokemon's evolution
+     * @param mixed $chain
+     * @param mixed $name
+     * @return mixed
+     */
+    private function findEvolution($chain, $name)
+    {
+        $found = false;
+        $evolution = null;
+
+        $current = $chain;
+        while (!$found && count($current["evolves_to"]) > 0) {
+
+            if ($current["species"]["name"] === $name) {
+                $found = true;
+                // if there is more than one possible evolution
+                $evolutionIndex = 0;
+                $evolutionsCount = count($current["evolves_to"]);
+                if ($evolutionsCount > 1) {
+                    $evolutionIndex = random_int(0, $evolutionsCount - 1);
+                }
+                $evolution = $this->getPokemon($current["evolves_to"][$evolutionIndex]["species"]["name"]);
+            } else {
+                $current = $current["evolves_to"][0];
+            }
+
+        }
+
+        if ($found && $evolution) {
+            return $evolution->json();
+        }
+
+        return null;
+    }
+
+    private function updatePokemon($id, $newData)
+    {
+        $moves = $this->getLevelUpMoves($newData["moves"]);
+        $evolutionChainUrl = $this->getEvolutionChainUrl($newData["species"]["url"]);
+        return $this->updatePokemonData($id, $newData, $moves, $evolutionChainUrl);
     }
 }

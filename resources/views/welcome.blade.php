@@ -27,10 +27,11 @@
             <x-pokemon-preview />
         </div>
     </div>
-    <div class="text-center">
+    <div class="text-center flex flex-col">
         <small>Solo se incluyen los movimientos de las versiones "Scarlet", "Violet", "Sword", "Shield" que puden
             aprenderse subiendo de
             nivel.</small>
+        <small>La evolución de eevee es aleatoria.</small>
     </div>
     <div id="teamList">
         <x-team-list :team="$team" />
