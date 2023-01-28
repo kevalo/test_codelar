@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-#preview{
-    width: 350px;
+#preview {
+    width: 250px;
 }

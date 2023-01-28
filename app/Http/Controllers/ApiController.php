@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class ApiController extends Controller
 {
     /**
-     * Search for a pokemon calling the /pokemon/{name} endpoint of pokeapi
+     * Search for a pokemon calling the /pokemon/{name} endpoint of https://pokeapi.co/
      * @param string $name
      * @return \Illuminate\Http\JsonResponse
      */
@@ -19,11 +18,12 @@ class ApiController extends Controller
             "html" => ""
         ];
 
+        $name = strtolower(trim($name));
         if (!$name) {
             return response()->json($response);
         }
 
-        $searchPokemonUrl = config("constants.POKEAPI_BASE_URL") . config("constants.POKEAPI_POKEMONS_ENDPOINT") . $name;
+        $searchPokemonUrl = config("constants.POKEAPI_BASE_URL") . config("constants.POKEAPI_POKEMON_ENDPOINT") . $name;
 
         try {
             $apiResponse = Http::get($searchPokemonUrl);
@@ -33,7 +33,7 @@ class ApiController extends Controller
             if ($response["status"] === 404) {
                 $html = "<span class='m-auto text-center'>No se encontró el pokemón $name </span>";
             } else {
-                $html = view("components.pokemon-preview", ["preview" => $apiResponse->json(), "some" => "s"])->render();
+                $html = view("components.pokemon-preview", ["preview" => $apiResponse->json()])->render();
             }
             $response["html"] = $html;
 

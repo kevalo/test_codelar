@@ -27,7 +27,7 @@ import './bootstrap';
 
             clearInputError(nameInput);
 
-            const name = nameInput.value.trim();
+            const name = nameInput.value.trim().toLowerCase();
 
             if (!name) {
                 inputError(nameInput);

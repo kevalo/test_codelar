@@ -27,6 +27,7 @@
             <x-pokemon-preview />
         </div>
     </div>
+    <x-team-list />
 
 </body>
 
