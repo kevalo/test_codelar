@@ -1,6 +1,5 @@
 <div>
     <form action="{{ route('search_pokemon', 'name') }}" method="get" class="flex flex-col" id="searchPokemonForm">
-        @csrf
         <label for="name">Agrega un pokemón a tu equipo: </label>
         <input type="text" name="name" id="name" class="border-solid border-2 mt-2 rounded-lg text-center"
             placeholder="Nombre del pokemón" autocomplete="off">
