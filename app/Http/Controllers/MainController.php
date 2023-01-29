@@ -90,6 +90,10 @@ class MainController extends Controller
         return response()->json($response, $response["status"]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function evolvePokemon(Request $request)
     {
         $response = [
@@ -113,6 +117,23 @@ class MainController extends Controller
                     }
                 }
             }
+        }
+
+        $response["html"] = view("components.team-list", ["team" => $this->getAllPokemonsData()])->render();
+        return response()->json($response);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function removePokemon(Request $request)
+    {
+        $response = ["html" => ""];
+
+        $id = $request->post("id");
+        if ($id) {
+            $this->deletePokemon($id);
         }
 
         $response["html"] = view("components.team-list", ["team" => $this->getAllPokemonsData()])->render();
@@ -198,6 +219,11 @@ class MainController extends Controller
         return null;
     }
 
+    /**
+     * @param mixed $id
+     * @param mixed $newData
+     * @return bool
+     */
     private function updatePokemon($id, $newData)
     {
         $moves = $this->getLevelUpMoves($newData["moves"]);

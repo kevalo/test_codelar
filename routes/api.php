@@ -23,4 +23,5 @@ Route::prefix("pokemon")->group(function () {
     Route::get("/search/{name}", [MainController::class, "searchPokemon"])->name("search_pokemon");
     Route::post("/add", [MainController::class, "addPokemon"])->name("add_pokemon");
     Route::post("/evolve", [MainController::class, "evolvePokemon"])->name("evolve_pokemon");
+    Route::post("/remove", [MainController::class, "removePokemon"])->name("remove_pokemon");
 });

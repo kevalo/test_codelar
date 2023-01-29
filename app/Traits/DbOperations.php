@@ -10,7 +10,6 @@ use Carbon\Carbon;
 
 trait DbOperations
 {
-
     /**
      * Returns the amount of pokemons in the database
      * @return int
@@ -30,7 +29,7 @@ trait DbOperations
     /**
      * Returns a pokemon searching by the Id
      * @param int $id
-     * @return mixed
+     * @return null| Pokemon
      */
     public function getPokemonById(int $id)
     {
@@ -49,7 +48,6 @@ trait DbOperations
         return $data;
     }
 
-
     /**
      * Returns the pokemons in the database
      * @return \Illuminate\Database\Eloquent\Collection|array
@@ -66,7 +64,6 @@ trait DbOperations
 
         return $data;
     }
-
 
     /**
      * Saves a pokemon in the database
@@ -143,6 +140,35 @@ trait DbOperations
                 }
             });
 
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * Deletes a pokemon from the database
+     * @param int $id
+     * @return mixed
+     */
+    public function deletePokemon(int $id)
+    {
+        $result = false;
+
+        if (!is_numeric($id)) {
+            return false;
+        }
+
+        try {
+            DB::transaction(function () use (&$result, $id) {
+                $pokemon = $this->getPokemonById($id);
+                if ($pokemon) {
+                    $pokemon->stats()->detach();
+                    $pokemon->moves()->detach();
+                    $result = $pokemon->delete();
+                }
+            });
         } catch (\Exception $e) {
             error_log($e->getMessage());
         }

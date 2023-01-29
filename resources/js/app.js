@@ -102,4 +102,22 @@ import './bootstrap';
     })
     //#endregion evolve pokemon
 
+    //#region remove pokemon
+    $(document).on("submit", ".remove-pokemon", async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+
+        let response = null;
+        try {
+            let data = new FormData(form);
+            response = await axios.post(form.action, data);
+        } catch (error) {
+            console.log(error);
+            response = error.response;
+        }
+
+        document.querySelector("#teamList").innerHTML = response.data.html;
+    })
+    //#endregion remove pokemon
+
 })();
